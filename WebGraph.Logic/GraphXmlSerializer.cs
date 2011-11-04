@@ -51,10 +51,11 @@ namespace WebGraph.Logic
 		/// <returns></returns>
 		public static Graph Deserialize(string file)
 		{
-			Graph result = new Graph();
-
 			XmlDocument doc = new XmlDocument();
 			doc.Load(file);
+
+			Graph result = new Graph();
+			result.Tag = doc.SelectSingleNode("/GraphXML/graph").Attributes["meta"].Value;
 
 			foreach (XmlNode node in doc.SelectNodes("/GraphXML/graph/node"))
 			{
