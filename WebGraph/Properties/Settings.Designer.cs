@@ -26,9 +26,27 @@ namespace WebGraph.Properties {
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public string MaxRecursionDepth {
+        public int MaxRecursionDepth {
             get {
-                return ((string)(this["MaxRecursionDepth"]));
+                return ((int)(this["MaxRecursionDepth"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FFFFFFFF")]
+        public global::System.Windows.Media.Color NodeForeground {
+            get {
+                return ((global::System.Windows.Media.Color)(this["NodeForeground"]));
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("#FF000080")]
+        public global::System.Windows.Media.Color NodeBackground {
+            get {
+                return ((global::System.Windows.Media.Color)(this["NodeBackground"]));
             }
         }
     }

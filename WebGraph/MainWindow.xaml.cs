@@ -102,25 +102,28 @@ namespace WebGraph
 					Graph = WebGraph.Logic.GraphXmlSerializer.Deserialize(FileName);
 					Layouter = new WebGraph.Logic.GraphLayouter(Graph);
 
+					Brush nodeFg = new SolidColorBrush(Properties.Settings.Default.NodeForeground);
+					Brush nodeBg = new SolidColorBrush(Properties.Settings.Default.NodeBackground);
+
+					Graph.ForAllEdges(edge =>
+						{
+							Line line = new Line();
+							line.Stroke = nodeBg;
+							edge.Tag = line;
+							graphCanvas.Children.Add(line);
+						});
 
 					Graph.ForAllNodes(node =>
 						{
 							TextBlock text = new TextBlock();
 							text.Text = node.Label;
-							text.Background = Brushes.LightGray;
+							text.Foreground = nodeFg;
+							text.Background = nodeBg;
 							text.Padding = new Thickness(4, 0, 4, 0);
 							text.FontSize = 12;
 							node.Tag = text;
 							graphCanvas.Children.Add(text);
-						});
-
-					Graph.ForAllEdges(edge =>
-						{
-							Line line = new Line();
-							line.Stroke = Brushes.DarkGray;
-							edge.Tag = line;
-							graphCanvas.Children.Add(line);
-						});
+						});					
 				}
 				catch (Exception exc)
 				{
@@ -208,15 +211,20 @@ namespace WebGraph
 				new WebGraph.Data.WebCache().Store(ls.Url, ls.Result);
 			}
 
+			Brush nodeFg = new SolidColorBrush(Properties.Settings.Default.NodeForeground);
+			Brush nodeBg = new SolidColorBrush(Properties.Settings.Default.NodeBackground);
+
 			WebGraph.Logic.Node root = Graph.FindNode(ls.Root);
 			if (root == null) // is this a new graph?
 			{
 				TextBlock text = new TextBlock();
 				text.Text = ls.Root;
-				text.Background = Brushes.LightGray;
+				text.Foreground = nodeFg;
+				text.Background = nodeBg;
 				text.Padding = new Thickness(4, 0, 4, 0);
 				text.FontSize = 12;
-				graphCanvas.Children.Add(text);
+				Canvas.SetZIndex(text, Int32.MaxValue);	// always on top
+				graphCanvas.Children.Add(text);				
 
 				root = Graph.AddNode(ls.Root);
 				root.Tag = text;
@@ -230,11 +238,12 @@ namespace WebGraph
 					if (Graph.FindNode(keywords[i]) == null)	// no circles please
 					{
 						Line line = new Line();
-						line.Stroke = Brushes.DarkGray;
+						line.Stroke = nodeBg;
 
 						TextBlock text = new TextBlock();
 						text.Text = keywords[i];
-						text.Background = Brushes.LightGray;
+						text.Foreground = nodeFg;
+						text.Background = nodeBg;
 						text.Padding = new Thickness(4, 0, 4, 0);
 						text.FontSize = 12;
 
@@ -246,8 +255,8 @@ namespace WebGraph
 						node.Tag = text;
 						edge.Tag = line;
 
-						if (ls.Depth < 1)	// recurse into subgraphs
-							LoadSubGraph(keywords[i], ls.Depth + 1);
+						if (ls.Depth < Properties.Settings.Default.MaxRecursionDepth)
+							LoadSubGraph(keywords[i], ls.Depth + 1);	// recurse into subgraphs
 					}
 				}
 			}
