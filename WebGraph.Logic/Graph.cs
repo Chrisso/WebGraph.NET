@@ -26,12 +26,16 @@ namespace WebGraph.Logic
 		/// <summary>Get or set custom data</summary>
 		public object Tag { get; set; }
 
+		/// <summary>Get or set the Node that is currently part of a dragging operation</summary>
+		public Node DragNode { get; set; }
+
 		/// <summary>Default ctor</summary>
 		public Graph()
 		{
 			_NodeRegistry = 0;
 			_Nodes = new List<Node>();
 			_Edges = new List<Edge>();
+			DragNode = null;
 		}
 
 		/// <summary>Creates a new node and adds it to the graph </summary>

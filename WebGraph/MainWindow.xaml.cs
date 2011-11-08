@@ -15,7 +15,8 @@ namespace WebGraph
 	{
 		private WebGraph.Logic.Graph Graph;
 		private WebGraph.Logic.GraphLayouter Layouter;
-		private string FileName;
+		private System.Windows.Point DragPoint;
+		private string FileName;		
 
 		public MainWindow()
 		{
@@ -121,6 +122,8 @@ namespace WebGraph
 							text.Background = nodeBg;
 							text.Padding = new Thickness(4, 0, 4, 0);
 							text.FontSize = 12;
+							text.MouseLeftButtonDown += new MouseButtonEventHandler(OnNodeMouseLeftButtonDown);
+
 							node.Tag = text;
 							graphCanvas.Children.Add(text);
 						});					
@@ -147,7 +150,7 @@ namespace WebGraph
 		#region help menu
 		private void OnHelp(object sender, ExecutedRoutedEventArgs e)
 		{
-			MessageBox.Show("WenGraph.NET v1.0 (c) 2011 Christoph Stoepel\nhttp://christoph.stoepel.net");
+			MessageBox.Show("WebGraph.NET v1.0 (c) 2011 Christoph Stoepel\nhttp://christoph.stoepel.net", "Über");
 		}
 		#endregion
 
@@ -222,7 +225,9 @@ namespace WebGraph
 				text.Foreground = nodeFg;
 				text.Background = nodeBg;
 				text.Padding = new Thickness(4, 0, 4, 0);
-				text.FontSize = 12;
+				text.FontSize = 12;				
+				text.MouseLeftButtonDown += new MouseButtonEventHandler(OnNodeMouseLeftButtonDown);
+				
 				Canvas.SetZIndex(text, Int32.MaxValue);	// always on top
 				graphCanvas.Children.Add(text);				
 
@@ -246,9 +251,11 @@ namespace WebGraph
 						text.Background = nodeBg;
 						text.Padding = new Thickness(4, 0, 4, 0);
 						text.FontSize = 12;
+						text.MouseLeftButtonDown += new MouseButtonEventHandler(OnNodeMouseLeftButtonDown);
 
 						graphCanvas.Children.Add(line);
 						graphCanvas.Children.Add(text);
+						Canvas.SetZIndex(text, 0xFFFF);
 
 						WebGraph.Logic.Node node = Graph.AddNode(keywords[i]);
 						WebGraph.Logic.Edge edge = Graph.AddEdge(root, node);
@@ -271,11 +278,61 @@ namespace WebGraph
 			Graph.ForAllNodes(new WebGraph.Logic.NodeCallback(UpdateNodeSize));
 			Layouter.ResetDamper();
 		}
-
+		
 		#endregion
 
-		#region custom layouting callbacks
+		#region drag and drop
+		void OnNodeMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+		{
+			if (Graph.DragNode != null)
+			{
+				Graph.DragNode.IsFixed = false;
+				Graph.DragNode = null;
+			}
+
+			WebGraph.Logic.Node node = Graph.FindNode((sender as TextBlock).Text);
+			if (node != null)
+			{
+				System.Diagnostics.Debug.WriteLine("Begin tracking node: " + (sender as TextBlock).Text);
+				Graph.DragNode = node;
+				Graph.DragNode.IsFixed = true;
+				DragPoint = e.GetPosition(graphCanvas);
+			}
+		}
+
+		void OnGraphMouseMove(object sender, MouseEventArgs e)
+		{
+			if (Graph.DragNode != null)
+			{
+				Point pt = e.GetPosition(graphCanvas);
+
+				Graph.DragNode.x -= DragPoint.X - pt.X;
+				Graph.DragNode.y -= DragPoint.Y - pt.Y;
+				Layouter.ResetDamper();
+
+				DragPoint.X = pt.X;
+				DragPoint.Y = pt.Y;
+			}
+		}
+
+		void OnGraphMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+		{
+			if (Graph.DragNode != null)
+			{
+				System.Diagnostics.Debug.WriteLine("End tracking node.");
+				Graph.DragNode.IsFixed = false;
+				Graph.DragNode = null;
+			}
+		}
+
+		private void OnGraphMouseLeave(object sender, MouseEventArgs e)
+		{
+			OnGraphMouseLeftButtonUp(sender, null);
+		}
+		#endregion
 		
+		#region custom layouting callbacks
+
 		private void CenterNodes(WebGraph.Logic.Node node)
 		{
 			node.drawx = node.x + graphCanvas.Width / 2;
@@ -387,6 +444,6 @@ namespace WebGraph
 		{
 			Graph.ForAllNodes(node => node.repulsion = Math.Max(node.repulsion - 10, 20));
 			Layouter.ResetDamper();
-		}
+		}		
 	}
 }

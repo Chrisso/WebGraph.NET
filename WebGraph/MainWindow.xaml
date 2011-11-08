@@ -46,12 +46,12 @@
 				<Button Command="ApplicationCommands.New">
 					<Image Source="/WebGraph;component/Resources/page_white_star.png" />
 				</Button>
-				<Button Command="ApplicationCommands.Open">
-					<Image Source="/WebGraph;component/Resources/folder_page.png" />
-				</Button>
 				<Button Command="ApplicationCommands.Save">
 					<Image Source="/WebGraph;component/Resources/disk.png" />
 				</Button>
+				<Button Command="ApplicationCommands.Open">
+					<Image Source="/WebGraph;component/Resources/folder_page.png" />
+				</Button>				
 			</ToolBar>
 			<ToolBar Background="#c1ccdb">
 				<ComboBox Name="comboBoxPlugins" Width="160" />
@@ -78,7 +78,7 @@
 			<TextBlock Name="statusText" />
 		</StatusBar>
 		<Viewbox Stretch="Fill" ClipToBounds="True">
-			<Canvas Name="graphCanvas" Width="1024" Height="768" />
+			<Canvas Name="graphCanvas" Width="1024" Height="768" Background="Transparent" MouseMove="OnGraphMouseMove" MouseLeftButtonUp="OnGraphMouseLeftButtonUp" MouseLeave="OnGraphMouseLeave" />
 		</Viewbox>
 	</DockPanel>		
 </Window>
